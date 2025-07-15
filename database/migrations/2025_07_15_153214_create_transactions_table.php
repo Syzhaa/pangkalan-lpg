@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
+            $table->string('transaction_code')->unique();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->unsignedInteger('total_amount');
+            $table->enum('payment_status', ['lunas', 'belum_lunas'])->default('lunas');
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

@@ -17,10 +17,16 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+    // app/Models/User.php
     protected $fillable = [
         'name',
         'email',
         'password',
+        'phone_number', // Tambahkan ini
+        'address',      // Tambahkan ini
+        'ktp_number',   // Tambahkan ini
+        'role',         // Tambahkan ini
+        'status',       // Tambahkan ini
     ];
 
     /**

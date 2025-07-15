@@ -13,10 +13,15 @@ return new class extends Migration
     {
         Schema::create('testimonials', function (Blueprint $table) {
             $table->id();
+            $table->string('customer_name');
+            $table->string('customer_job')->nullable();
+            $table->string('customer_image')->nullable();
+            $table->text('comment');
+            $table->tinyInteger('rating')->default(5);
+            $table->boolean('is_visible')->default(true);
             $table->timestamps();
         });
     }
-
     /**
      * Reverse the migrations.
      */

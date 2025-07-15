@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('site_settings', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->string('key')->unique();
+            $table->text('value')->nullable();
         });
     }
 
