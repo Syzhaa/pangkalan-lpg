@@ -71,6 +71,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('transactions/{transaction}', [TransactionController::class, 'show'])->name('transactions.show');
     Route::get('transactions/{transaction}/print', [TransactionController::class, 'print'])->name('transactions.print');
     Route::patch('transactions/{transaction}/update-status', [TransactionController::class, 'updateStatus'])->name('transactions.update_status');
+    Route::post('transactions/check-eligibility', [TransactionController::class, 'checkEligibility'])->name('transactions.check_eligibility');
 
     // Laporan
     Route::prefix('reports')->name('reports.')->group(function () {

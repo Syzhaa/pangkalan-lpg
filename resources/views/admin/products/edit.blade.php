@@ -75,6 +75,12 @@
                     <textarea name="description" id="description" rows="4"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ old('description', $product->description) }}</textarea>
                 </div>
+                <div class="md:col-span-2">
+                    <label for="is_restricted" class="inline-flex items-center">
+                        <input type="checkbox" name="is_restricted" id="is_restricted" class="rounded" value="1" {{ (isset($product) && $product->is_restricted) ? 'checked' : '' }}>
+                        <span class="ml-2 text-sm text-gray-600">Batasi Pembelian (1 Member / 1 Gas per Bulan)</span>
+                    </label>
+                </div>
             </div>
 
             <div class="flex items-center justify-end mt-6">

@@ -17,6 +17,7 @@ class Product extends Model
         'selling_price',
         'stock',
         'is_featured',
+        'is_restricted',
     ];
 
     public function variant()

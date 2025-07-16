@@ -42,8 +42,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h3>PANGKALAN GAS LPG</h3>
-            <p>Jl. Pangeran Antasari No. 123, Banjarmasin</p>
+            <h3>{{ $settings['base_name'] ?? 'Pangkalan Gas' }}</h3>
+            <p>{{ $settings['address'] ?? '-' }}</p>
             <hr>
         </div>
         <div class="content">

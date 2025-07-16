@@ -33,6 +33,7 @@ class SettingController extends Controller
             'phone' => 'nullable|string|max:20',
             'logo' => 'nullable|image|mimes:png,jpg,jpeg|max:512',
             'hero_image' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
+            'purchase_cooldown_days' => 'required|integer|min:1',
         ]);
 
         // Loop dan simpan semua data yang berbasis teks

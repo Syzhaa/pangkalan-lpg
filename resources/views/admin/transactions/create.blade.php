@@ -109,59 +109,96 @@
 
 
             return {
-                selectedProductId: '',
-                cart: [],
-                grandTotal: 0,
+            selectedProductId: '',
+            selectedCustomerId: '',
+            cart: [],
+            grandTotal: 0,
+            
+            async addToCart() {
+                this.selectedCustomerId = document.getElementById('user_id').value;
 
-                addToCart() {
-                    if (!this.selectedProductId) return;
-
-                    const product = productsData[this.selectedProductId];
-                    const existingItem = this.cart.find(item => item.id == this.selectedProductId);
-
-                    if (existingItem) {
-                        if (existingItem.quantity < existingItem.maxStock) {
-                            existingItem.quantity++;
-                            existingItem.subtotal = existingItem.price * existingItem.quantity;
-                        }
-                    } else {
-                        this.cart.push({
-                            id: this.selectedProductId,
-                            name: product.name,
-                            price: product.price,
-                            quantity: 1,
-                            subtotal: product.price,
-                            maxStock: product.stock
-                        });
-                    }
-                    this.calculateGrandTotal();
-                    this.selectedProductId = '';
-                },
-
-                removeFromCart(index) {
-                    this.cart.splice(index, 1);
-                    this.calculateGrandTotal();
-                },
-
-                updateSubtotal(index) {
-                    let item = this.cart[index];
-                    if (item.quantity > item.maxStock) {
-                        item.quantity = item.maxStock;
-                    } else if (item.quantity < 1) {
-                        item.quantity = 1;
-                    }
-                    item.subtotal = item.price * item.quantity;
-                    this.calculateGrandTotal();
-                },
-
-                calculateGrandTotal() {
-                    this.grandTotal = this.cart.reduce((total, item) => total + item.subtotal, 0);
-                },
-
-                formatCurrency(amount) {
-                    return 'Rp ' + amount.toLocaleString('id-ID');
+                if (!this.selectedProductId || !this.selectedCustomerId) {
+                    alert('Silakan pilih pelanggan dan produk terlebih dahulu.');
+                    return;
                 }
+
+                const product = productsData[this.selectedProductId];
+
+                if (product.is_restricted) {
+                    try {
+                        // PERBAIKAN #2: Menggunakan route() helper untuk URL yang benar
+                        const response = await fetch('{{ route("transactions.check_eligibility") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: JSON.stringify({
+                                user_id: this.selectedCustomerId,
+                                product_id: this.selectedProductId
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (!result.eligible) {
+                            alert(result.message);
+                            return;
+                        }
+                    } catch (error) {
+                        alert('Terjadi kesalahan saat memeriksa data.');
+                        return;
+                    }
+                }
+                
+                const existingItem = this.cart.find(item => item.id == this.selectedProductId);
+                if (existingItem) {
+                    if (existingItem.quantity < existingItem.maxStock) {
+                        existingItem.quantity++;
+                    } else {
+                        alert('Stok produk tidak mencukupi.');
+                    }
+                } else {
+                    this.cart.push({
+                        id: this.selectedProductId,
+                        name: product.name,
+                        price: product.price,
+                        quantity: 1,
+                        subtotal: product.price,
+                        maxStock: product.stock
+                    });
+                }
+                this.calculateGrandTotal();
+                this.selectedProductId = '';
+            },
+
+            removeFromCart(index) {
+                this.cart.splice(index, 1);
+                this.calculateGrandTotal();
+            },
+
+            updateSubtotal(index) {
+                let item = this.cart[index];
+                if (item.quantity > item.maxStock) {
+                    alert('Kuantitas melebihi stok yang tersedia.');
+                    item.quantity = item.maxStock;
+                }
+                if (item.quantity < 1) {
+                    item.quantity = 1;
+                }
+                item.subtotal = item.price * item.quantity;
+                this.calculateGrandTotal();
+            },
+
+            calculateGrandTotal() {
+                this.grandTotal = this.cart.reduce((total, item) => total + item.subtotal, 0);
+            },
+
+            formatCurrency(amount) {
+                return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
             }
+        }
         }
     </script>
 @endsection

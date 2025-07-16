@@ -38,13 +38,11 @@ class ProductController extends Controller
         ]);
 
         $input = $request->all();
+        $input['is_restricted'] = $request->has('is_restricted');
 
         if ($image = $request->file('image')) {
-            // Simpan ke storage/app/public/products
             $imageName = date('YmdHis') . "." . $image->getClientOriginalExtension();
             $path = $image->storeAs('products', $imageName, 'public');
-
-            // Simpan path relatif ke database
             $input['image'] = 'products/' . $imageName;
         }
 
@@ -53,6 +51,7 @@ class ProductController extends Controller
         return redirect()->route('products.index')
             ->with('success', 'Produk berhasil ditambahkan.');
     }
+
 
     public function edit(Product $product)
     {
@@ -75,14 +74,13 @@ class ProductController extends Controller
         ]);
 
         $input = $request->all();
+        $input['is_restricted'] = $request->has('is_restricted');
 
         if ($image = $request->file('image')) {
-            // Hapus gambar lama jika ada
             if ($product->image && Storage::disk('public')->exists($product->image)) {
                 Storage::disk('public')->delete($product->image);
             }
 
-            // Simpan gambar baru
             $imageName = date('YmdHis') . "." . $image->getClientOriginalExtension();
             $path = $image->storeAs('products', $imageName, 'public');
             $input['image'] = 'products/' . $imageName;

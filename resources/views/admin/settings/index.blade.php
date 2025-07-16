@@ -53,6 +53,12 @@
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                         value="{{ old('phone', $settings['phone'] ?? '') }}">
                 </div>
+                {{-- Letakkan ini bersama input lainnya seperti No. Telepon --}}
+                <div>
+                    <label for="purchase_cooldown_days" class="block font-medium text-sm text-gray-700">Jangka Waktu Pembatasan (hari)</label>
+                    <input type="number" name="purchase_cooldown_days" id="purchase_cooldown_days" class="mt-1 block w-full rounded-md" value="{{ old('purchase_cooldown_days', $settings['purchase_cooldown_days'] ?? 30) }}">
+                    <p class="text-xs text-gray-500 mt-1">Durasi (dalam hari) seorang member harus menunggu sebelum bisa membeli produk yang sama lagi.</p>
+                </div>
 
                 {{-- Pengaturan Gambar --}}
                 <div class="border-t pt-6">

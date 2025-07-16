@@ -9,6 +9,7 @@ use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB; // <-- Import DB Facade
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\SiteSetting;
 
 class TransactionController extends Controller
 {
@@ -37,6 +38,7 @@ class TransactionController extends Controller
                     'name' => $product->name,
                     'price' => $product->selling_price,
                     'stock' => $product->stock,
+                    'is_restricted' => $product->is_restricted
                 ]
             ];
         });
@@ -134,5 +136,44 @@ class TransactionController extends Controller
         ]);
 
         return back()->with('success', 'Status pembayaran berhasil diperbarui.');
+    }
+    // app/Http/Controllers/Admin/TransactionController.php
+
+    public function checkEligibility(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'product_id' => 'required|exists:products,id',
+        ]);
+
+        $product = Product::find($request->product_id);
+
+        if (!$product->is_restricted) {
+            return response()->json(['eligible' => true]);
+        }
+
+        // --- PERUBAHAN DI SINI ---
+        // Ambil nilai jangka waktu dari database, jika tidak ada, default-nya 30 hari.
+        $cooldownDays = SiteSetting::where('key', 'purchase_cooldown_days')->first()->value ?? 30;
+
+        // Hitung tanggal batas berdasarkan pengaturan
+        $cooldownPeriod = now()->subDays($cooldownDays);
+        // -------------------------
+
+        $hasPurchased = Transaction::where('user_id', $request->user_id)
+            ->where('created_at', '>=', $cooldownPeriod) // Gunakan variabel baru
+            ->whereHas('details', function ($query) use ($request) {
+                $query->where('product_id', $request->product_id);
+            })
+            ->exists();
+
+        if ($hasPurchased) {
+            return response()->json([
+                'eligible' => false,
+                'message' => 'Gagal: Member ini sudah membeli produk yang sama dalam ' . $cooldownDays . ' hari terakhir.'
+            ]);
+        }
+
+        return response()->json(['eligible' => true]);
     }
 }
